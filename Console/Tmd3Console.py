@@ -1,45 +1,51 @@
 import pygame
 import virtualKeyboard
 import time
-import busio
-import digitalio
-import board
-import adafruit_mcp3xxx.mcp3008 as MCP
-from adafruit_mcp3xxx.analog_in import AnalogIn
-import pigpio
 
-# access the gpio pins
-GPIO = pigpio.pi()
+hasHardware = True
+try:
+    import busio
+    import digitalio
+    import board
+    import adafruit_mcp3xxx.mcp3008 as MCP
+    from adafruit_mcp3xxx.analog_in import AnalogIn
+    import pigpio
+except:
+    hasHardware = False
 
-# Select pins for the CD4067BE.
-S0 = 23
-S1 = 27  
-S2 = 17
-S3 = 18
+if hasHardware:
+    # access the gpio pins
+    GPIO = pigpio.pi()
 
-# Selct pins are all OUTPUT.
-GPIO.set_mode(S0, pigpio.OUTPUT)
-GPIO.set_mode(S1, pigpio.OUTPUT)
-GPIO.set_mode(S2, pigpio.OUTPUT)
-GPIO.set_mode(S3, pigpio.OUTPUT)
+    # Select pins for the CD4067BE.
+    S0 = 23
+    S1 = 27  
+    S2 = 17
+    S3 = 18
 
-# Select the C8 pin.
-GPIO.write(S0, 0)
-GPIO.write(S1, 0)
-GPIO.write(S2, 0)
-GPIO.write(S3, 0)
+    # Selct pins are all OUTPUT.
+    GPIO.set_mode(S0, pigpio.OUTPUT)
+    GPIO.set_mode(S1, pigpio.OUTPUT)
+    GPIO.set_mode(S2, pigpio.OUTPUT)
+    GPIO.set_mode(S3, pigpio.OUTPUT)
 
-# Create the spi bus.
-spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
+    # Select the C8 pin.
+    GPIO.write(S0, 0)
+    GPIO.write(S1, 0)
+    GPIO.write(S2, 0)
+    GPIO.write(S3, 0)
 
-# cCreate the cs (chip select).
-cs = digitalio.DigitalInOut(board.D22)
+    # Create the spi bus.
+    spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
 
-# Create the mcp object.
-mcp = MCP.MCP3008(spi, cs)
+    # cCreate the cs (chip select).
+    cs = digitalio.DigitalInOut(board.D22)
 
-# Create an analog input channel on pin 0.
-chan0 = AnalogIn(mcp, MCP.P0)
+    # Create the mcp object.
+    mcp = MCP.MCP3008(spi, cs)
+
+    # Create an analog input channel on pin 0.
+    chan0 = AnalogIn(mcp, MCP.P0)
 
 # Initialize the PyGame environment.
 pygame.init()
@@ -116,7 +122,7 @@ DARK_PURPLE = 200, 0, 200
 SCREEN_SIZE = SCREEN_WIDTH,SCREEN_HEIGHT = 800, 480
 infoObject = pygame.display.Info()
 if infoObject.current_w == 800 and infoObject.current_h == 480:
-    SCREEN_ATTRIBUTES = pygame.FULLSCREEN
+    SCREEN_ATTRIBUTES = pygame.NOFRAME+pygame.FULLSCREEN
 else:
     SCREEN_ATTRIBUTES = 0
 
@@ -232,55 +238,56 @@ panelLabelSymbols = {
     'EXIT_':panelLabelFont.render('X', True, PURPLE, WHITE)
     }
 
-# Used to select one of the 16 Hall effect sensors.     
-def selectPin(pin):
-    if pin & 0b00000001:
-        GPIO.write(S0, 1)
-    else:
-        GPIO.write(S0, 0)
-    if pin & 0b00000010:
-        GPIO.write(S1, 1)
-    else:
-        GPIO.write(S1, 0)
-    if pin & 0b00000100:
-        GPIO.write(S2, 1)
-    else:
-        GPIO.write(S2, 0)
-    if pin & 0b00001000:
-        GPIO.write(S3, 1)
-    else:
-        GPIO.write(S3, 0)
+if hasHardware:
+    # Used to select one of the 16 Hall effect sensors.     
+    def selectPin(pin):
+        if pin & 0b00000001:
+            GPIO.write(S0, 1)
+        else:
+            GPIO.write(S0, 0)
+        if pin & 0b00000010:
+            GPIO.write(S1, 1)
+        else:
+            GPIO.write(S1, 0)
+        if pin & 0b00000100:
+            GPIO.write(S2, 1)
+        else:
+            GPIO.write(S2, 0)
+        if pin & 0b00001000:
+            GPIO.write(S3, 1)
+        else:
+            GPIO.write(S3, 0)
 
-# Create a data structure to hold the sensor and tile data.
-sensors = []
-mids = [33984, 33856, 34112, 33920, 33664, 34112, 34048, 33984, 33920, 34112, 34112, 33920, 34112, 34112, 33984, 33920]
-rows = [3, 3, 3, 3, 2, 2, 2, 2, 1, 2, 3, 4, 4, 4, 4, 4]
-cols = [1, 2, 3, 4, 1, 2, 3, 4, 5, 5, 5, 5, 1, 2, 3, 4]
+    # Create a data structure to hold the sensor and tile data.
+    sensors = []
+    mids = [33984, 33856, 34112, 33920, 33664, 34112, 34048, 33984, 33920, 34112, 34112, 33920, 34112, 34112, 33984, 33920]
+    rows = [3, 3, 3, 3, 2, 2, 2, 2, 1, 2, 3, 4, 4, 4, 4, 4]
+    cols = [1, 2, 3, 4, 1, 2, 3, 4, 5, 5, 5, 5, 1, 2, 3, 4]
 
-# Initialize the structure with the midpoint readings for each sensor.
-for i in range(0,16):
-    sensors.append(dict(mid = mids[i], tiles = [], set = False))
+    # Initialize the structure with the midpoint readings for each sensor.
+    for i in range(0,16):
+        sensors.append(dict(mid = mids[i], tiles = [], set = False))
 
-# Add the valid tiles to each sensor along with the expected sensor value.
-sensors[8]["tiles"] = [(-12,'b'), (-19,'4')]  #***** Test tiles are not separated for this sensor.
+    # Add the valid tiles to each sensor along with the expected sensor value.
+    sensors[8]["tiles"] = [(-13,'b'), (-18,'4')]  #***** Test tiles are not separated for this sensor.
 
-sensors[4]["tiles"] = [(51,'0'), (35,'1'), (22,'2'), (-35,'3'), (-16,'4')]
-sensors[5]["tiles"] = [(48,'0'), (33,'1'), (21,'2'), (-33,'3'), (-15,'4')]
-sensors[6]["tiles"] = [(47,'0'), (33,'1'), (20,'2'), (-32,'3'), (-15,'4')]
-sensors[7]["tiles"] = [(49,'0'), (33,'1'), (22,'2'), (-33,'3'), (-15,'4')]
-sensors[9]["tiles"] = [(50,'0'), (34,'1'), (22,'2'), (-34,'3'), (-15,'4')]
+    sensors[4]["tiles"] = [(51,'0'), (35,'1'), (22,'2'), (-35,'3'), (-16,'4')]
+    sensors[5]["tiles"] = [(48,'0'), (33,'1'), (21,'2'), (-33,'3'), (-15,'4')]
+    sensors[6]["tiles"] = [(47,'0'), (33,'1'), (20,'2'), (-32,'3'), (-15,'4')]
+    sensors[7]["tiles"] = [(49,'0'), (33,'1'), (22,'2'), (-33,'3'), (-15,'4')]
+    sensors[9]["tiles"] = [(50,'0'), (34,'1'), (22,'2'), (-34,'3'), (-15,'4')]
 
-sensors[0]["tiles"] = [(-53,'L'), (-17,'R')]
-sensors[1]["tiles"] = [(-49,'L'), (-15,'R')]
-sensors[2]["tiles"] = [(-48,'L'), (-15,'R')]
-sensors[3]["tiles"] = [(-49,'L'), (-15,'R')]
-sensors[10]["tiles"] = [(-51,'L'), (-15,'R')]
+    sensors[0]["tiles"] = [(-53,'L'), (-17,'R')]
+    sensors[1]["tiles"] = [(-49,'L'), (-15,'R')]
+    sensors[2]["tiles"] = [(-48,'L'), (-15,'R')]
+    sensors[3]["tiles"] = [(-49,'L'), (-15,'R')]
+    sensors[10]["tiles"] = [(-51,'L'), (-15,'R')]
 
-sensors[12]["tiles"] = [(-60,'A'), (-33,'B'), (-17,'C'), (-12,'D'), (58,'E'), (38,'F'), (25,'H')]
-sensors[13]["tiles"] = [(-53,'A'), (-29,'B'), (-15,'C'), (-11,'D'), (52,'E'), (34,'F'), (22,'H')]
-sensors[14]["tiles"] = [(-52,'A'), (-28,'B'), (-15,'C'), (-11,'D'), (50,'E'), (33,'F'), (22,'H')]
-sensors[15]["tiles"] = [(-53,'A'), (-29,'B'), (-16,'C'), (-12,'D'), (51,'E'), (33,'F'), (22,'H')]
-sensors[11]["tiles"] = [(-56,'A'), (-31,'B'), (-17,'C'), (-12,'D'), (52,'E'), (35,'F'), (23,'H')]
+    sensors[12]["tiles"] = [(-60,'A'), (-33,'B'), (-17,'C'), (-12,'D'), (58,'E'), (38,'F'), (25,'H')]
+    sensors[13]["tiles"] = [(-53,'A'), (-29,'B'), (-15,'C'), (-11,'D'), (52,'E'), (34,'F'), (22,'H')]
+    sensors[14]["tiles"] = [(-52,'A'), (-28,'B'), (-15,'C'), (-11,'D'), (50,'E'), (33,'F'), (22,'H')]
+    sensors[15]["tiles"] = [(-53,'A'), (-29,'B'), (-16,'C'), (-12,'D'), (51,'E'), (33,'F'), (22,'H')]
+    sensors[11]["tiles"] = [(-56,'A'), (-31,'B'), (-17,'C'), (-12,'D'), (52,'E'), (35,'F'), (23,'H')]
 
 ##### Functions and classes.
 # Implement a generic dialog box.
@@ -1136,7 +1143,7 @@ def runFast():
 # Scan the panel for the state passed to see if any tiles have changed.
 def checkPanelForTiles(state, channel):
     # Do not allow the tape or state cells to be modified while running.
-    if not stateMachineRunning:
+    if not stateMachineRunning and hasHardware:
         # Check to see if a tile has been changed.
         for i in range(0,16):
             col =  cols[i]-1
@@ -1149,7 +1156,7 @@ def checkPanelForTiles(state, channel):
                 val = round(val/100)
                 tileMatched = False
                 for tile in sensors[i]["tiles"]:
-                    if abs(tile[0]-val) < 4:
+                    if abs(tile[0]-val) < 3:
                         # Special case for 'b'.
                         if row == 2 and col == 4 and stateTable[state+str(col)][row-1] == 'b':
                             # Can't overwrite a 'b'.
@@ -1497,7 +1504,8 @@ while not done:
         break # Break out of the while loop.
 
     # Check for tile changes.
-    checkPanelForTiles("B", chan0)
+    if hasHardware:
+        checkPanelForTiles("C", chan0)
     
     # Highlight any buttons the mouse is over.
     checkForMouseovers(buttons)
