@@ -1,0 +1,10 @@
+Plotted to 'D:\Prusa\TMD-3\Turing Machine State\Turing Machine State-F_Cu.gtl'.
+Plotted to 'D:\Prusa\TMD-3\Turing Machine State\Turing Machine State-B_Cu.gbl'.
+Plotted to 'D:\Prusa\TMD-3\Turing Machine State\Turing Machine State-F_Paste.gtp'.
+Plotted to 'D:\Prusa\TMD-3\Turing Machine State\Turing Machine State-B_Paste.gbp'.
+Plotted to 'D:\Prusa\TMD-3\Turing Machine State\Turing Machine State-F_Silkscreen.gto'.
+Plotted to 'D:\Prusa\TMD-3\Turing Machine State\Turing Machine State-B_Silkscreen.gbo'.
+Plotted to 'D:\Prusa\TMD-3\Turing Machine State\Turing Machine State-F_Mask.gts'.
+Plotted to 'D:\Prusa\TMD-3\Turing Machine State\Turing Machine State-B_Mask.gbs'.
+Plotted to 'D:\Prusa\TMD-3\Turing Machine State\Turing Machine State-Edge_Cuts.gm1'.
+Info: Done.
