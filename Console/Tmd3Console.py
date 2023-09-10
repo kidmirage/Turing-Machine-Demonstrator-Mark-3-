@@ -44,8 +44,13 @@ if hasHardware:
     # Create the mcp object.
     mcp = MCP.MCP3008(spi, cs)
 
-    # Create an analog input channel on pin 0.
-    chan0 = AnalogIn(mcp, MCP.P0)
+    # Create analog input channels.
+    chan0 = AnalogIn(mcp, MCP.P0)  # C
+    chan1 = AnalogIn(mcp, MCP.P1)  # B
+    chan2 = AnalogIn(mcp, MCP.P2)  # A
+    chan3 = AnalogIn(mcp, MCP.P3)  # D
+    chan4 = AnalogIn(mcp, MCP.P4)  # E
+    chan5 = AnalogIn(mcp, MCP.P5)  # F
 
 # Initialize the PyGame environment.
 pygame.init()
@@ -259,35 +264,170 @@ if hasHardware:
             GPIO.write(S3, 0)
 
     # Create a data structure to hold the sensor and tile data.
-    sensors = []
-    mids = [33984, 33856, 34112, 33920, 33664, 34112, 34048, 33984, 33920, 34112, 34112, 33920, 34112, 34112, 33984, 33920]
+    sensor0 = []
+    sensor1 = []
+    sensor2 = []
+    sensor3 = []
+    sensor4 = []
+    sensor5 = []
+    sensors = [sensor0, sensor1, sensor2, sensor3, sensor4, sensor5]
+    
+    mids0 = []
+    mids1 = []
+    mids2 = []
+    mids3 = []
+    mids4 = []
+    mids5 = []
+    mids = [mids0, mids1, mids2, mids3, mids4, mids5]
+    
     rows = [3, 3, 3, 3, 2, 2, 2, 2, 1, 2, 3, 4, 4, 4, 4, 4]
     cols = [1, 2, 3, 4, 1, 2, 3, 4, 5, 5, 5, 5, 1, 2, 3, 4]
+    
+    for i in range(0,16):
+        selectPin(i)
+        time.sleep(0.01)
+        mids0.append(chan0.value)
+        mids1.append(chan1.value)
+        mids2.append(chan2.value)
+        mids3.append(chan3.value)
+        mids4.append(chan4.value)
+        mids5.append(chan5.value)
 
     # Initialize the structure with the midpoint readings for each sensor.
     for i in range(0,16):
-        sensors.append(dict(mid = mids[i], tiles = [], set = False))
+        sensors[0].append(dict(mid = mids[0][i], tiles = [], set = False))
+        sensors[1].append(dict(mid = mids[1][i], tiles = [], set = False))
+        sensors[2].append(dict(mid = mids[2][i], tiles = [], set = False))
+        sensors[3].append(dict(mid = mids[3][i], tiles = [], set = False))
+        sensors[4].append(dict(mid = mids[4][i], tiles = [], set = False))
+        sensors[5].append(dict(mid = mids[5][i], tiles = [], set = False))
 
     # Add the valid tiles to each sensor along with the expected sensor value.
-    sensors[8]["tiles"] = [(-13,'b'), (-18,'4')]  #***** Test tiles are not separated for this sensor.
+    # C
+    sensors[0][8]["tiles"] = [(-627,'b'), (282,'4')] 
 
-    sensors[4]["tiles"] = [(51,'0'), (35,'1'), (22,'2'), (-35,'3'), (-16,'4')]
-    sensors[5]["tiles"] = [(48,'0'), (33,'1'), (21,'2'), (-33,'3'), (-15,'4')]
-    sensors[6]["tiles"] = [(47,'0'), (33,'1'), (20,'2'), (-32,'3'), (-15,'4')]
-    sensors[7]["tiles"] = [(49,'0'), (33,'1'), (22,'2'), (-33,'3'), (-15,'4')]
-    sensors[9]["tiles"] = [(50,'0'), (34,'1'), (22,'2'), (-34,'3'), (-15,'4')]
+    sensors[0][4]["tiles"] = [(-435,'0'), (-301,'1'), (691,'2'), (429,'3'), (301,'4')]
+    sensors[0][5]["tiles"] = [(-410,'0'), (-282,'1'), (640,'2'), (397,'3'), (275,'4')]
+    sensors[0][6]["tiles"] = [(-384,'0'), (-262,'1'), (589,'2'), (365,'3'), (262,'4')]
+    sensors[0][7]["tiles"] = [(-371,'0'), (-256,'1'), (576,'2'), (358,'3'), (256,'4')]
+    sensors[0][9]["tiles"] = [(-358,'0'), (-250,'1'), (563,'2'), (352,'3'), (250,'4')]
 
-    sensors[0]["tiles"] = [(-53,'L'), (-17,'R')]
-    sensors[1]["tiles"] = [(-49,'L'), (-15,'R')]
-    sensors[2]["tiles"] = [(-48,'L'), (-15,'R')]
-    sensors[3]["tiles"] = [(-49,'L'), (-15,'R')]
-    sensors[10]["tiles"] = [(-51,'L'), (-15,'R')]
+    sensors[0][0]["tiles"] = [(-205,'L'), (205,'R')]
+    sensors[0][1]["tiles"] = [(-192,'L'), (192,'R')]
+    sensors[0][2]["tiles"] = [(-179,'L'), (179,'R')]
+    sensors[0][3]["tiles"] = [(-179,'L'), (179,'R')]
+    sensors[0][10]["tiles"] = [(-173,'L'), (173,'R')]
 
-    sensors[12]["tiles"] = [(-60,'A'), (-33,'B'), (-17,'C'), (-12,'D'), (58,'E'), (38,'F'), (25,'H')]
-    sensors[13]["tiles"] = [(-53,'A'), (-29,'B'), (-15,'C'), (-11,'D'), (52,'E'), (34,'F'), (22,'H')]
-    sensors[14]["tiles"] = [(-52,'A'), (-28,'B'), (-15,'C'), (-11,'D'), (50,'E'), (33,'F'), (22,'H')]
-    sensors[15]["tiles"] = [(-53,'A'), (-29,'B'), (-16,'C'), (-12,'D'), (51,'E'), (33,'F'), (22,'H')]
-    sensors[11]["tiles"] = [(-56,'A'), (-31,'B'), (-17,'C'), (-12,'D'), (52,'E'), (35,'F'), (23,'H')]
+    sensors[0][12]["tiles"] = [(-749,'A'), (-474,'B'), (-307,'C'), (-218,'D'), (723,'E'), (467,'F'), (320,'H')]
+    sensors[0][13]["tiles"] = [(-653,'A'), (-422,'B'), (-275,'C'), (-198,'D'), (627,'E'), (410,'F'), (282,'H')]
+    sensors[0][14]["tiles"] = [(-608,'A'), (-390,'B'), (-262,'C'), (-186,'D'), (595,'E'), (384,'F'), (269,'H')]
+    sensors[0][15]["tiles"] = [(-602,'A'), (-384,'B'), (-250,'C'), (-179,'D'), (570,'E'), (384,'F'), (269,'H')]
+    sensors[0][11]["tiles"] = [(-602,'A'), (-384,'B'), (-256,'C'), (-186,'D'), (557,'E'), (378,'F'), (256,'H')]
+    
+    # B
+    sensors[1][8]["tiles"] = [(-557,'b'), (243,'4')] 
+
+    sensors[1][4]["tiles"] = [(-365,'0'), (-243,'1'), (550,'2'), (333,'3'), (237,'4')]
+    sensors[1][5]["tiles"] = [(-358,'0'), (-250,'1'), (550,'2'), (346,'3'), (243,'4')]
+    sensors[1][6]["tiles"] = [(-346,'0'), (-237,'1'), (518,'2'), (326,'3'), (243,'4')]
+    sensors[1][7]["tiles"] = [(-352,'0'), (-243,'1'), (550,'2'), (346,'3'), (250,'4')]
+    sensors[1][9]["tiles"] = [(-352,'0'), (-250,'1'), (557,'2'), (339,'3'), (250,'4')]
+
+    sensors[1][0]["tiles"] = [(-198,'L'), (186,'R')]
+    sensors[1][1]["tiles"] = [(-186,'L'), (186,'R')]
+    sensors[1][2]["tiles"] = [(-173,'L'), (173,'R')]
+    sensors[1][3]["tiles"] = [(-166,'L'), (173,'R')]
+    sensors[1][10]["tiles"] = [(-173,'L'), (173,'R')]
+
+    sensors[1][12]["tiles"] = [(-666,'A'), (-416,'B'), (-275,'C'), (-198,'D'), (640,'E'), (422,'F'), (288,'H')]
+    sensors[1][13]["tiles"] = [(-627,'A'), (-397,'B'), (-256,'C'), (-186,'D'), (621,'E'), (397,'F'), (275,'H')]
+    sensors[1][14]["tiles"] = [(-608,'A'), (-390,'B'), (-256,'C'), (-182,'D'), (582,'E'), (378,'F'), (262,'H')]
+    sensors[1][15]["tiles"] = [(-589,'A'), (-371,'B'), (-250,'C'), (-179,'D'), (576,'E'), (384,'F'), (262,'H')]
+    sensors[1][11]["tiles"] = [(-608,'A'), (-384,'B'), (-256,'C'), (-186,'D'), (589,'E'), (384,'F'), (269,'H')]
+    
+    # A
+    sensors[2][8]["tiles"] = [(-557,'b'), (237,'4')] 
+
+    sensors[2][4]["tiles"] = [(-390,'0'), (-275,'1'), (621,'2'), (384,'3'), (275,'4')]
+    sensors[2][5]["tiles"] = [(-352,'0'), (-243,'1'), (576,'2'), (339,'3'), (250,'4')]
+    sensors[2][6]["tiles"] = [(-358,'0'), (-250,'1'), (557,'2'), (339,'3'), (243,'4')]
+    sensors[2][7]["tiles"] = [(-365,'0'), (-243,'1'), (570,'2'), (352,'3'), (256,'4')]
+    sensors[2][9]["tiles"] = [(-352,'0'), (-237,'1'), (544,'2'), (339,'3'), (243,'4')]
+
+    sensors[2][0]["tiles"] = [(-186,'L'), (192,'R')]
+    sensors[2][1]["tiles"] = [(-173,'L'), (186,'R')]
+    sensors[2][2]["tiles"] = [(-173,'L'), (179,'R')]
+    sensors[2][3]["tiles"] = [(-173,'L'), (179,'R')]
+    sensors[2][10]["tiles"] = [(-166,'L'), (173,'R')]
+
+    sensors[2][12]["tiles"] = [(-666,'A'), (-422,'B'), (-282,'C'), (-205,'D'), (646,'E'), (422,'F'), (288,'H')]
+    sensors[2][13]["tiles"] = [(-621,'A'), (-384,'B'), (-262,'C'), (-186,'D'), (595,'E'), (390,'F'), (269,'H')]
+    sensors[2][14]["tiles"] = [(-608,'A'), (-384,'B'), (-250,'C'), (-179,'D'), (589,'E'), (384,'F'), (262,'H')]
+    sensors[2][15]["tiles"] = [(-589,'A'), (-378,'B'), (-250,'C'), (-179,'D'), (582,'E'), (378,'F'), (256,'H')]
+    sensors[2][11]["tiles"] = [(-621,'A'), (-384,'B'), (-256,'C'), (-186,'D'), (595,'E'), (390,'F'), (269,'H')]
+    
+    # D
+    sensors[3][8]["tiles"] = [(-621,'b'), (275,'4')] 
+
+    sensors[3][4]["tiles"] = [(-384,'0'), (-256,'1'), (595,'2'), (371,'3'), (262,'4')]
+    sensors[3][5]["tiles"] = [(-371,'0'), (-250,'1'), (570,'2'), (346,'3'), (250,'4')]
+    sensors[3][6]["tiles"] = [(-365,'0'), (-256,'1'), (582,'2'), (365,'3'), (256,'4')]
+    sensors[3][7]["tiles"] = [(-378,'0'), (-256,'1'), (589,'2'), (365,'3'), (256,'4')]
+    sensors[3][9]["tiles"] = [(-378,'0'), (-256,'1'), (576,'2'), (358,'3'), (250,'4')]
+
+    sensors[3][0]["tiles"] = [(-173,'L'), (173,'R')]
+    sensors[3][1]["tiles"] = [(-173,'L'), (173,'R')]
+    sensors[3][2]["tiles"] = [(-166,'L'), (166,'R')]
+    sensors[3][3]["tiles"] = [(-173,'L'), (173,'R')]
+    sensors[3][10]["tiles"] = [(-173,'L'), (173,'R')]
+
+    sensors[3][12]["tiles"] = [(-602,'A'), (-371,'B'), (-243,'C'), (-173,'D'), (576,'E'), (371,'F'), (256,'H')]
+    sensors[3][13]["tiles"] = [(-570,'A'), (-358,'B'), (-237,'C'), (-173,'D'), (544,'E'), (358,'F'), (250,'H')]
+    sensors[3][14]["tiles"] = [(-582,'A'), (-358,'B'), (-237,'C'), (-173,'D'), (557,'E'), (371,'F'), (256,'H')]
+    sensors[3][15]["tiles"] = [(-595,'A'), (-371,'B'), (-243,'C'), (-173,'D'), (582,'E'), (384,'F'), (262,'H')]
+    sensors[3][11]["tiles"] = [(-602,'A'), (-371,'B'), (-250,'C'), (-186,'D'), (589,'E'), (390,'F'), (269,'H')]
+    
+    # E
+    sensors[4][8]["tiles"] = [(-602,'b'), (262,'4')] 
+
+    sensors[4][4]["tiles"] = [(-390,'0'), (-269,'1'), (621,'2'), (384,'3'), (275,'4')]
+    sensors[4][5]["tiles"] = [(-333,'0'), (-224,'1'), (525,'2'), (326,'3'), (230,'4')]
+    sensors[4][6]["tiles"] = [(-371,'0'), (-256,'1'), (595,'2'), (365,'3'), (262,'4')]
+    sensors[4][7]["tiles"] = [(-365,'0'), (-230,'1'), (576,'2'), (358,'3'), (256,'4')]
+    sensors[4][9]["tiles"] = [(-371,'0'), (-256,'1'), (589,'2'), (365,'3'), (262,'4')]
+
+    sensors[4][0]["tiles"] = [(-179,'L'), (179,'R')]
+    sensors[4][1]["tiles"] = [(-166,'L'), (166,'R')]
+    sensors[4][2]["tiles"] = [(-160,'L'), (166,'R')]
+    sensors[4][3]["tiles"] = [(-166,'L'), (179,'R')]
+    sensors[4][10]["tiles"] = [(-166,'L'), (173,'R')]
+
+    sensors[4][12]["tiles"] = [(-659,'A'), (-416,'B'), (-275,'C'), (-192,'D'), (640,'E'), (422,'F'), (288,'H')]
+    sensors[4][13]["tiles"] = [(-621,'A'), (-390,'B'), (-256,'C'), (-186,'D'), (608,'E'), (397,'F'), (275,'H')]
+    sensors[4][14]["tiles"] = [(-602,'A'), (-378,'B'), (-243,'C'), (-173,'D'), (582,'E'), (384,'F'), (269,'H')]
+    sensors[4][15]["tiles"] = [(-608,'A'), (-378,'B'), (-250,'C'), (-179,'D'), (582,'E'), (384,'F'), (262,'H')]
+    sensors[4][11]["tiles"] = [(-634,'A'), (-403,'B'), (-262,'C'), (-186,'D'), (621,'E'), (410,'F'), (282,'H')]
+
+    # F
+    sensors[5][8]["tiles"] = [(-589,'b'), (262,'4')] 
+    
+    sensors[5][4]["tiles"] = [(-384,'0'), (-262,'1'), (608,'2'), (378,'3'), (262,'4')]
+    sensors[5][5]["tiles"] = [(-365,'0'), (-250,'1'), (570,'2'), (352,'3'), (256,'4')]
+    sensors[5][6]["tiles"] = [(-352,'0'), (-237,'1'), (557,'2'), (352,'3'), (243,'4')]
+    sensors[5][7]["tiles"] = [(-358,'0'), (-250,'1'), (550,'2'), (346,'3'), (243,'4')]
+    sensors[5][9]["tiles"] = [(-346,'0'), (-243,'1'), (544,'2'), (339,'3'), (237,'4')]
+
+    sensors[5][0]["tiles"] = [(-173,'L'), (186,'R')]
+    sensors[5][1]["tiles"] = [(-173,'L'), (179,'R')]
+    sensors[5][2]["tiles"] = [(-160,'L'), (173,'R')]
+    sensors[5][3]["tiles"] = [(-173,'L'), (179,'R')]
+    sensors[5][10]["tiles"] = [(-173,'L'), (186,'R')]
+
+    sensors[5][12]["tiles"] = [(-691,'A'), (-416,'B'), (-282,'C'), (-198,'D'), (666,'E'), (435,'F'), (301,'H')]
+    sensors[5][13]["tiles"] = [(-640,'A'), (-397,'B'), (-256,'C'), (-186,'D'), (608,'E'), (397,'F'), (269,'H')]
+    sensors[5][14]["tiles"] = [(-576,'A'), (-384,'B'), (-250,'C'), (-179,'D'), (582,'E'), (384,'F'), (262,'H')]
+    sensors[5][15]["tiles"] = [(-595,'A'), (-371,'B'), (-256,'C'), (-179,'D'), (589,'E'), (384,'F'), (262,'H')]
+    sensors[5][11]["tiles"] = [(-640,'A'), (-403,'B'), (-262,'C'), (-186,'D'), (595,'E'), (397,'F'), (269,'H')]
 
 ##### Functions and classes.
 # Implement a generic dialog box.
@@ -1141,7 +1281,7 @@ def runFast():
                     return 'H'
                 
 # Scan the panel for the state passed to see if any tiles have changed.
-def checkPanelForTiles(state, channel):
+def checkPanelForTiles(state, sensors, channel):
     # Do not allow the tape or state cells to be modified while running.
     if not stateMachineRunning and hasHardware:
         # Check to see if a tile has been changed.
@@ -1149,14 +1289,13 @@ def checkPanelForTiles(state, channel):
             col =  cols[i]-1
             row = rows[i]
             selectPin(i)
-            time.sleep(0.01)
-            val = channel.value-sensors[i]["mid"]
-            if abs(val) > 200:
+            #time.sleep(0.01)
+            val = round((channel.value-sensors[i]["mid"])/10)
+            if abs(val) > 100:
                 # Tile detected. See if it matches one of the valid tiles for this sensor.
-                val = round(val/100)
                 tileMatched = False
                 for tile in sensors[i]["tiles"]:
-                    if abs(tile[0]-val) < 3:
+                    if abs(tile[0]-val) < 60:
                         # Special case for 'b'.
                         if row == 2 and col == 4 and stateTable[state+str(col)][row-1] == 'b':
                             # Can't overwrite a 'b'.
@@ -1505,7 +1644,12 @@ while not done:
 
     # Check for tile changes.
     if hasHardware:
-        checkPanelForTiles("C", chan0)
+        checkPanelForTiles("C", sensors[0], chan0)
+        checkPanelForTiles("B", sensors[1], chan1)
+        checkPanelForTiles("A", sensors[2], chan2)
+        checkPanelForTiles("D", sensors[3], chan3)
+        checkPanelForTiles("E", sensors[4], chan4)
+        checkPanelForTiles("F", sensors[5], chan5)
     
     # Highlight any buttons the mouse is over.
     checkForMouseovers(buttons)
